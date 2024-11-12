@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Детали события{% endblock %}
+
+{% block content %}
+<div style="width: 80%; margin: 20px auto; padding: 20px; background-color: #f8f9fa; border-radius: 5px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);">
+    <h2 style="color: #007bff;">{{ event.title }}</h2>
+
+        <form method="POST" action="{{ url_for('delete_event', event_id=event.id) }}" onsubmit="return confirm('Вы уверены, что хотите удалить это событие?');">
+            {{ form.hidden_tag() }}
+            <button type="submit" class="btn btn-primary" style="background-color: #007bff; color: #fff; padding: 10px; border-radius: 5px; border: none;">Удалить</button>
+            <h2></h2>
+        </form>
+
+    <form method="POST" action="{{ url_for('update_event', event_id=event.id) }}">
+        {{ form.hidden_tag() }}
+        <div class="form-group" style="margin-bottom: 15px;">
+            <label for="title" style="display: block; color: #343a40;">Название</label>
+            <input type="text" id="title" name="title" value="{{ event.title }}" class="form-control" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ced4da;">
+        </div>
+        
+        <div class="form-group" style="margin-bottom: 15px;">
+            <label for="description" style="display: block; color: #343a40;">Описание</label>
+            <textarea id="description" name="description" class="form-control" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ced4da;">{{ event.description }}</textarea>
+        </div>
+        
+        <div class="form-group" style="margin-bottom: 15px;">
+            <label for="date" style="display: block; color: #343a40;">Дата</label>
+            <input type="datetime-local" id="date" name="date" value="{{ event.date }}" class="form-control" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ced4da;">
+        </div>
+        
+        <div class="form-group" style="margin-bottom: 15px;">
+            <label for="location" style="display: block; color: #343a40;">Место</label>
+            <input type="text" id="location" name="location" value="{{ event.location }}" class="form-control" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ced4da;">
+        </div>
+        
+        <button type="submit" class="btn btn-primary" style="background-color: #007bff; color: #fff; padding: 10px; border-radius: 5px; border: none;">Сохранить изменения</button>
+    </form>
+    <form method="POST" action="{{ url_for('add_reminder', event_id=event.id) }}">
+        <h2></h2>
+        <button type="submit" class="btn btn-primary" style="background-color: #007bff; color: #fff; padding: 10px; border-radius: 5px; border: none;">Напомнить на почту за 2 дня до события</button>
+    </form>
+    
+    <!-- Секция комментариев -->
+<div style="margin-top: 30px;">
+    <h3 style="color: #007bff;">Комментарии</h3>
+    <ul style="list-style-type: none; padding: 0;">
+        {% for note in notes %}
+        <li style="background-color: #e9ecef; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+            <strong>{{ note.user.name }}:</strong>  <!-- Отображение имени автора -->
+            <p style="margin: 5px 0;">{{ note.content }}</p>
+            <small style="color: #6c757d;">{{ note.timestamp }}</small>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <!-- Форма добавления комментария -->
+    <form method="POST" action="{{ url_for('add_comment', event_id=event.id) }}" style="margin-top: 20px;">
+        {{ comment_form.hidden_tag() }}
+        <div class="form-group" style="margin-bottom: 15px;">
+            <label for="content" style="display: block; color: #343a40;">Добавить заметку</label>
+            {{ comment_form.content(class="form-control", placeholder="Введите заметку...", style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ced4da;") }}
+        </div>
+        <button type="submit" class="btn btn-secondary" style="background-color: #6c757d; color: #fff; padding: 10px; border-radius: 5px; border: none;">Отправить</button>
+    </form>
+</div>
+
+</div>
+{% endblock %}

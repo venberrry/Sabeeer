@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block title %}Комната{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/room_detail.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="room-container">
+    <!-- Боковая панель для чата -->
+    <div class="chat-container">
+        <div class="sideeebar">
+            <h2>Чат</h2>
+            <div id="chat-text" class="chat-box"></div>
+        </div>
+            <div class="chat-sidebar">
+                <input class="msg-field" id="input-text" placeholder="Введите текст">
+                <button id="submit" class="chat-send-btn">Отправить</button>
+            </div>
+    </div>
+
+    <!-- Основная область контента -->
+    <div class="event-board">
+        <!-- Действия в заголовке комнаты -->
+        <div class="room-header">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Выйти к дашбоарду</a>
+            <button class="btn btn-primary" id="open-create-event-modal">Создать карточку ивента</button>
+
+            {% if is_admin %}
+            <a href="{{ url_for('room_members', room_id=room.id) }}" class="btn btn-secondary">Просмотр участников</a>
+            {% endif %}
+
+            <a href="{{ url_for('profile') }}" class="btn btn-secondary">В профиль</a>
+            <a href="{{ url_for('logout') }}" class="btn btn-danger">Выйти</a>
+        </div>
+
+        <!-- Список ивентов -->
+        <div class="event-list">
+            {% for event in events %}
+            <div class="event-card">
+                <h4>{{ event.title }}</h4>
+                <p>{{ event.description }}</p>
+                <small class="event-date">Дата: {{ event.date }}</small>
+                <small class="event-location">Место: {{ event.location }}</small>
+                <a href="{{ url_for('event_detail', event_id=event.id) }}" class="event-link">Просмотр и комментирование</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для просмотра участников -->
+<div id="viewMembersModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="close-view-members-modal">&times;</span>
+        <h2>Список участников</h2>
+        <ul id="members-list" class="members-list">
+            <!-- Список участников будет загружаться через AJAX -->
+        </ul>
+    </div>
+</div>
+
+<!-- Модальное окно для создания ивента -->
+<div id="createEventModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="close-create-event-modal">&times;</span>
+        <h2>Создать карточку ивента</h2>
+        <form id="createEventForm" method="POST" action="{{ url_for('create_event', room_id=room.id) }}">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                <label for="title">Название</label>
+                <input type="text" id="title" name="title" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Описание</label>
+                <textarea id="description" name="description" class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="date">Дата</label>
+                <input type="datetime-local" id="date" name="date" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="location">Место</label>
+                <input type="text" id="location" name="location" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary modal-submit-btn">Создать</button>
+        </form>
+    </div>
+</div>
+
+
+
+<script>
+    // Open and close the create event modal
+    document.getElementById("open-create-event-modal").onclick = function() {
+        document.getElementById("createEventModal").style.display = "block";
+    };
+    document.getElementById("close-create-event-modal").onclick = function() {
+        document.getElementById("createEventModal").style.display = "none";
+    };
+    window.onclick = function(event) {
+        if (event.target == document.getElementById("createEventModal")) {
+            document.getElementById("createEventModal").style.display = "none";
+        }
+    };
+document.getElementById("createEventForm").onsubmit = function(event) {
+    event.preventDefault();
+    const formData = new FormData(this);
+
+    fetch("{{ url_for('create_event', room_id=room.id) }}", {
+        method: "POST",
+        body: formData,
+        headers: {
+            "X-Requested-With": "XMLHttpRequest"
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            console.error("Детали ошибок:", data.errors); // Выводим ошибки валидации
+            let errorMessage = data.message + "\n";
+            for (let field in data.errors) {
+                errorMessage += `${field}: ${data.errors[field].join(', ')}\n`;
+            }
+            alert(errorMessage); // Вывод детализированных сообщений об ошибках
+        }
+    })
+    .catch(error => {
+        console.error("Ошибка при создании ивента:", error);
+        alert(error.message);
+    });
+};
+
+
+
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+<script type="text/javascript">
+    var socket_chat = io('/chat');
+
+    socket_chat.on('mymsg', function(data) {
+        var chat_text = document.getElementById('chat-text');
+        console.log("data gotten: " + data);
+        chat_text.innerHTML += '<p style="color: midnightblue;">USER: ' + data + '</p>';
+    });
+
+    socket_chat.on('recv', function(data) {
+        var chat_text = document.getElementById('chat-text');
+        console.log("data gotten: " + JSON.stringify(data));
+        chat_text.innerHTML += '<p style="color: blueviolet;">SUPPORT: ' + data.length_msg + ' ' + data.latin_msg + '</p>';
+    });
+
+    var input_text = document.getElementById('input-text');
+    var submit = document.getElementById('submit');
+
+    submit.addEventListener('click', function() {
+        console.log('clicked!');
+        var msg = input_text.value;
+        socket_chat.emit('send_msg', {msg: msg});
+        input_text.value = '';
+    });
+</script>
+<script>
+    // Открытие и закрытие модального окна просмотра участников
+document.getElementById("open-view-members-modal").onclick = function() {
+    fetch("{{ url_for('room_members', room_id=room.id) }}")
+        .then(response => response.json())
+        .then(data => {
+            const membersList = document.getElementById("members-list");
+            membersList.innerHTML = "";  // Очистка списка перед обновлением
+            data.members.forEach(member => {
+                const listItem = document.createElement("li");
+                listItem.innerHTML = `
+                    <strong>${member.name}</strong> (${member.role})
+                    ${member.role !== 'admin' ? `<button onclick="removeMember(${member.user_id})" class="btn btn-danger btn-sm">Удалить</button>` : ''}
+                `;
+                membersList.appendChild(listItem);
+            });
+            document.getElementById("viewMembersModal").style.display = "block";
+        })
+        .catch(error => console.error("Ошибка при загрузке списка участников:", error));
+};
+
+document.getElementById("close-view-members-modal").onclick = function() {
+    document.getElementById("viewMembersModal").style.display = "none";
+};
+
+// Функция удаления участника
+function removeMember(userId) {
+    fetch(`{{ url_for('remove_member', room_id=room.id) }}?user_id=${userId}`, { method: "POST" })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Пользователь успешно удален.");
+                location.reload();
+            } else {
+                alert("Ошибка при удалении пользователя.");
+            }
+        })
+        .catch(error => console.error("Ошибка при удалении пользователя:", error));
+}
+
+</script>
+{% endblock %}

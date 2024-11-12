@@ -1,0 +1,24 @@
+.main-container {
+    margin-top: 50px;
+}
+
+.main-container h1 {
+    font-size: 36px;
+    color: #ffc107;
+    margin-bottom: 20px;
+}
+
+.buttons .btn {
+    padding: 10px 20px;
+    font-size: 18px;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.buttons .btn:hover {
+    background-color: #0056b3;
+}

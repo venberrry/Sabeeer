@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}Личный кабинет{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <a href="{{ url_for('profile') }}" class="btn btn-secondary">В профиль</a>
+    <a href="{{ url_for('logout') }}" class="btn btn-danger">Выйти</a>
+    <button class="btn btn-primary" id="open-create-room-modal">Создать новую комнату</button>
+    <button class="btn btn-secondary" id="open-join-room-modal">Присоединиться к комнате</button>
+</div>
+
+<div class="dashboard-container">
+    <div class="room-list">
+        {% for item in rooms %}
+        <div class="room-card" onclick="window.location='{{ url_for('room_detail', room_id=item.room.id) }}'">
+            <h3>{{ item.room.name }}</h3>
+            <p>{{ item.room.description }}</p>
+            <div class="room-actions">
+                {% if item.role == 'admin' %}
+                <a href="{{ url_for('edit_room', room_id=item.room.id) }}" class="btn btn-edit">Редактировать</a>
+                <form action="{{ url_for('delete_room', room_id=item.room.id) }}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-delete" onclick="return confirm('Вы уверены, что хотите удалить эту комнату?');">Удалить</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Модальное окно создания комнаты -->
+<div id="createRoomModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="close-create-room-modal">&times;</span>
+        <h2>Создать новую комнату</h2>
+
+        <div class="flash-messages"></div>
+
+        <form id="createRoomForm" method="POST" action="{{ url_for('create_room') }}">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.name.label }}
+                {{ form.name(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.identifier.label }}
+                {{ form.identifier(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.password.label }}
+                {{ form.password(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.description.label }}
+                {{ form.description(class="form-control") }}
+            </div>
+            <button type="submit" class="btn btn-secondary">Создать</button>
+        </form>
+    </div>
+</div>
+
+<!-- Модальное окно для присоединения к комнате -->
+<div id="joinRoomModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="close-join-room-modal">&times;</span>
+        <h2>Присоединиться к комнате</h2>
+        <div class="flash-messages" id="join-flash-messages"></div>
+        <form id="joinRoomForm" method="POST" action="{{ url_for('join_room') }}">
+            <div class="form-group">
+                <label for="identifier">Идентификатор комнаты</label>
+                <input type="text" id="identifier" name="identifier" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Пароль</label>
+                <input type="password" id="password" name="password" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-secondary">Присоединиться</button>
+        </form>
+    </div>
+</div>
+
+
+<script>
+    // Открытие и закрытие модальных окон
+    document.getElementById("open-create-room-modal").onclick = function() {
+        document.getElementById("createRoomModal").style.display = "block";
+    };
+    document.getElementById("close-create-room-modal").onclick = function() {
+        document.getElementById("createRoomModal").style.display = "none";
+    };
+
+    document.getElementById("open-join-room-modal").onclick = function() {
+        document.getElementById("joinRoomModal").style.display = "block";
+    };
+    document.getElementById("close-join-room-modal").onclick = function() {
+        document.getElementById("joinRoomModal").style.display = "none";
+    };
+
+    window.onclick = function(event) {
+        if (event.target == document.getElementById("createRoomModal")) {
+            document.getElementById("createRoomModal").style.display = "none";
+        }
+        if (event.target == document.getElementById("joinRoomModal")) {
+            document.getElementById("joinRoomModal").style.display = "none";
+        }
+    };
+
+    // Обработка отправки формы присоединения к комнате через AJAX
+    document.getElementById("joinRoomForm").onsubmit = function(event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+
+        fetch("{{ url_for('join_room') }}", {
+            method: "POST",
+            body: formData,
+            headers: {
+                "X-Requested-With": "XMLHttpRequest"
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const flashMessages = document.getElementById("join-flash-messages");
+            flashMessages.innerHTML = "";
+            if (data.success) {
+                location.reload(); // Перезагрузка страницы при успешном присоединении
+            } else {
+                const errorDiv = document.createElement("div");
+                errorDiv.classList.add("flash", "flash-danger");
+                errorDiv.textContent = data.message;
+                flashMessages.appendChild(errorDiv);
+            }
+        })
+        .catch(error => {
+            console.error("Ошибка при присоединении к комнате:", error);
+        });
+    };
+</script>
+{% endblock %}

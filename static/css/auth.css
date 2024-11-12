@@ -1,0 +1,129 @@
+/* Общие стили для контейнеров */
+.form-container {
+    max-width: 400px;
+    margin: 20px auto;
+    padding: 30px;
+    background-color: #444;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    color: #fff;
+    text-align: center;
+}
+
+/* Заголовки для форм */
+.login-title, .register-title, .verify-title {
+    font-size: 28px;
+    color: #ffc107;
+    margin-bottom: 20px;
+}
+
+/* Общие стили для полей формы */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-label {
+    font-size: 14px;
+    color: #ddd;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #666;
+    border-radius: 4px;
+    background-color: #333;
+    color: #fff;
+}
+
+/* Уникальные классы для каждого HTML файла */
+.login-container .login-input,
+.register-container .register-input,
+.verify-container .verify-input {
+    border: 1px solid #666;
+}
+
+/* Кнопки */
+.btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.login-btn, .register-btn, .verify-btn {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.login-btn:hover, .register-btn:hover, .verify-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Стили для flash-сообщений */
+.flash-messages {
+    margin-top: 15px;
+}
+
+.flash {
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.flash-success {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.flash-error {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+/* OAuth логин кнопки */
+.oauth-login {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.oauth-btn {
+    padding: 10px 15px;
+    font-size: 16px;
+    background-color: #6c757d;
+    color: #fff;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.oauth-btn:hover {
+    background-color: #5a6268;
+}
+
+/* Ссылка на регистрацию */
+.register-link {
+    display: block;
+    margin-top: 20px;
+    font-size: 14px;
+    color: #ffc107;
+    text-decoration: none;
+}
+
+.register-link:hover {
+    color: #ffa500;
+}
+
+/* Специальные стили для текста в verify */
+.verify-text {
+    font-size: 16px;
+    margin-bottom: 20px;
+    color: #ccc;
+}

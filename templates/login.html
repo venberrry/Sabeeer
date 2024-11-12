@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Вход{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="form-container login-container">
+    <h2 class="login-title">Вход</h2>
+    <form method="POST" action="{{ url_for('login') }}">
+        {{ form.hidden_tag() }}
+        <div class="form-group login-email">
+            {{ form.email.label(class="form-label") }}
+            {{ form.email(class="form-control login-input") }}
+        </div>
+        <div class="form-group login-password">
+            {{ form.password.label(class="form-label") }}
+            {{ form.password(class="form-control login-input") }}
+        </div>
+        <div class="form-group login-submit">
+            {{ form.submit(class="btn btn-primary login-btn") }}
+        </div>
+    </form>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages login-flash">
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <div class="oauth-login login-oauth">
+        <a href="{{ url_for('github_login') }}" class="btn btn-secondary oauth-btn">Войти через GitHub</a>
+        <a href="{{ url_for('yandex_login') }}" class="btn btn-secondary oauth-btn">Войти через Yandex</a>
+    </div>
+    <a href="{{ url_for('register') }}" class="register-link">Нет аккаунта? Регистрация</a>
+</div>
+{% endblock %}

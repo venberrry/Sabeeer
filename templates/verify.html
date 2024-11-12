@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Подтверждение регистрации{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="form-container verify-container">
+    <h2 class="verify-title">Подтверждение регистрации</h2>
+    <p class="verify-text">Введите код, который был отправлен на вашу почту, чтобы подтвердить, что это вы</p>
+    <form method="POST" action="{{ url_for('verify_registration') }}">
+        {{ form.hidden_tag() }}
+        <div class="form-group verify-code">
+            {{ form.code.label(class="form-label") }}
+            {{ form.code(class="form-control verify-input") }}
+        </div>
+        <div class="form-group verify-submit">
+            {{ form.submit(class="btn btn-primary verify-btn") }}
+        </div>
+    </form>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages verify-flash">
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+</div>
+{% endblock %}

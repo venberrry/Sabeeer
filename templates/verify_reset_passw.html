@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Подтверждение восстановления пароля{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/verify_reset_passw.css') }}">
+{% endblock %}
+
+
+{% block content %}
+<div class="container">
+    <h2>Подтверждение восстановления пароля</h2>
+    <p>Введите код, который был отправлен на ваш email для подтверждения восстановления пароля.</p>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('verify_reset') }}">
+        {{ form.hidden_tag() }}
+        
+        <div class="form-group">
+            <label for="code">Код подтверждения</label>
+            {{ form.code(class="form-control", placeholder="Введите код") }}
+        </div>
+        
+        <button type="submit" class="btn btn-primary mt-3">Подтвердить</button>
+    </form>
+    
+    <div class="mt-4">
+        <a href="{{ url_for('reset_password') }}">Отправить код снова</a>
+    </div>
+</div>
+{% endblock %}

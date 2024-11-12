@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Профиль{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <h2>Профиль пользователя</h2>
+    <div class="profile-details">
+        <p><strong>Имя:</strong> {{ user.name }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+    </div>
+    <div class="profile-actions">
+        <form action="{{ url_for('request_password_reset') }}" method="post">
+            <button type="submit" class="btn btn-primary">Сбросить пароль</button>
+            <h5> Если вы вошли через Яндекс или через Гитхаб и смените пароль, вы сможете как войти потом через Яндекс или Гитхаб, так и с паролем</h5>
+        </form>
+    </div>
+</div>
+{% endblock %}
